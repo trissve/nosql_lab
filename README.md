@@ -8,6 +8,7 @@
 
 
 2. Cloning repository
+
 ```git clone git@github.com:trissve/nosql_lab.git```
 
 ```cd nosql_lab```
@@ -16,6 +17,7 @@
 
 
 3. Next, you need to enter the contener, login as SYSDBA in order to create new PDB and admin user.
+
 ```docker exec -it oracle-db bash``` 
 
 ```sqlplus / as sysdba```
