@@ -54,5 +54,6 @@
     ```
 
 6. Now you can connect to newly created PDB, using PDB name as Service name, and users name and password.
+Use your favourite database client (I used DataGrip)
 
 
