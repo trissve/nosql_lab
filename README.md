@@ -3,14 +3,21 @@
 1. You need to have an activated account on container-registry.oracle. Next, you need to auth yourself and pull the db image:
 
 ```docker login container-registry.oracle.com```
+
 ```docker pull container-registry.oracle.com/database/enterprise:latest```
 
 
-2. ```docker-compose up -d```
+2. Cloning repository
+```git clone git@github.com:trissve/nosql_lab.git```
+
+```cd nosql_lab```
+
+```docker-compose up -d```
 
 
 3. Next, you need to enter the contener, login as SYSDBA in order to create new PDB and admin user.
-```docker exec -it oracle-db bash```
+```docker exec -it oracle-db bash``` 
+
 ```sqlplus / as sysdba```
 
 
