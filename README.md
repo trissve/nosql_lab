@@ -1,13 +1,19 @@
 # Setup Oracle Database
 
-1. You need to have an activated account on container-registry.oracle. Next, you need to auth yourself and pull the db image:
+1. Załóż i aktywuj konto na stronie: [https://container-registry.oracle.com/ords/f?p=113:10::::::](container-registry.oracle)
+Zaloguj się na stronie i zaakceptuj licencję dla obrazu database/enterprise.
+
+
+2. Następnie otwórz terminal i zaloguj się w Dockerze do rejestru Oracle:
 
 ```docker login container-registry.oracle.com```
 
+
+3. Pobierz obraz bazy danych Oracle (Enterprise Edition):
 ```docker pull container-registry.oracle.com/database/enterprise:latest```
 
 
-2. Cloning repository
+4. Sklonuj repozytorium i uruchom kontener za pomocą docker-compose:
 
 ```git clone git@github.com:trissve/nosql_lab.git```
 
@@ -16,34 +22,44 @@
 ```docker-compose up -d```
 
 
-3. Next, you need to enter the contener, login as SYSDBA in order to create new PDB and admin user.
+5. Po uruchomieniu kontenera, wejdź do jego terminala i uruchom klienta sqlplus jako użytkownik systemowy (SYSDBA):
 
 ```docker exec -it oracle-db bash``` 
 
 ```sqlplus / as sysdba```
 
 
-4.  ```
+6. PDB to "pluggable database" – odseparowana baza danych w ramach jednej instancji Oracle. PDB działa wewnątrz CDB, czyli głównej kontenerowej bazy danych - to centralna instancja zarządzająca zasobami. Każda PDB może mieć własnych użytkowników, tabele, dane itd. Umożliwia to tworzenie środowisk testowych i izolację danych. 
+
+Stwórz nową PDB, razem z jej adminem oraz określ ścieżkę, gdzie będą zapisywane jej dane - zazwyczaj korzysta się już z "bazowej", służącej jako szablon wbudowanej PDB - pdbseed :
+
+    ```
     CREATE PLUGGABLE DATABASE my_pdb
     ADMIN USER pdbadmin IDENTIFIED BY pdbadmin
     FILE_NAME_CONVERT = ('/pdbseed/', '/my_pdb/');
+    ```
 
+Otwórz nowo utworzoną PDB:
+    ```
     ALTER PLUGGABLE DATABASE my_pdb OPEN;
     ALTER PLUGGABLE DATABASE my_pdb SAVE STATE;
+    ```
 
+Przełącz kontekst na PDB i nadaj adminowi wszystkie prawa do zarządzania nią:
+    ```
     ALTER SESSION SET CONTAINER=my_pdb;
     GRANT DBA TO admin;
     ```
 
-5. Next, we need to create a dedicated tablespace, and user in new PDB.
+7. Stwórz dedykowaną przestrzeń na dane, uzytkownika i nadaj mu uprawnienia.
 
     ```
     CREATE TABLESPACE USERS
     DATAFILE '/opt/oracle/oradata/ORCLCDB/my_pdb/myspace01.dbf'
     SIZE 100M AUTOEXTEND ON NEXT 10M MAXSIZE UNLIMITED;
 
-    CREATE USER ewa
-    IDENTIFIED BY ewa
+    CREATE USER username
+    IDENTIFIED BY userpasswd
     DEFAULT TABLESPACE USERS
     TEMPORARY TABLESPACE TEMP
     QUOTA UNLIMITED ON USERS;
@@ -53,7 +69,11 @@
     GRANT SELECT ON v_$session TO ewa;
     ```
 
-6. Now you can connect to newly created PDB, using PDB name as Service name, and users name and password.
-Use your favourite database client (I used DataGrip)
+8. Możesz teraz połączyć się PDB za pomocą dowolnego klienta Oracle (np. DataGrip). Dane połączenia:
+    Host: localhost
+    Port: 1521
+    Użytkownik: username
+    Hasło: userpasswd
+    Service name: my_pdb
 
 
